@@ -36,6 +36,44 @@ async function run() {
       res.send(result);
     });
 
+    // Get all vehicles with filter,sort
+    app.get("/api/vehicles", async (req, res) => {
+      try {
+        const { category, location, sort, minPrice, maxPrice } = req.query;
+
+        const query = {};
+
+        // filter by category
+        if (category) query.category = category;
+
+        // filter by location
+        if (location) query.location = { $regex: location, $options: "i" };
+
+        // filter by price range
+        if (minPrice || maxPrice) {
+          query.pricePerDay = {};
+          if (minPrice) query.pricePerDay.$gte = Number(minPrice);
+          if (maxPrice) query.pricePerDay.$lte = Number(maxPrice);
+        }
+
+        // sort options
+        const sortObj = {};
+        if (sort === "newest") sortObj.createdAt = -1;
+        else if (sort === "oldest") sortObj.createdAt = 1;
+        else if (sort === "price_asc") sortObj.pricePerDay = 1;
+        else if (sort === "price_desc") sortObj.pricePerDay = -1;
+        else sortObj.createdAt = -1; // default
+
+        const result = await vehiclesCollection
+          .find(query)
+          .sort(sortObj)
+          .toArray();
+        res.send(result);
+      } catch (e) {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
+
     console.log("MongoDB connected & routes ready");
   } finally {
   }
