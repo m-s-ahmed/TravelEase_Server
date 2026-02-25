@@ -20,6 +20,7 @@ async function run() {
 
     const db = client.db("travelEaseDB");
     const vehiclesCollection = db.collection("vehicles");
+    const bookingsCollection = db.collection("bookings");
 
     app.get("/", (req, res) => {
       res.send("TravelEase Server is Running");
@@ -33,6 +34,15 @@ async function run() {
         .limit(6)
         .toArray();
 
+      res.send(result);
+    });
+
+    //Get single vehicle by id
+    app.get("/api/vehicles/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await vehiclesCollection.findOne({
+        _id: new ObjectId(id),
+      });
       res.send(result);
     });
 
@@ -73,6 +83,29 @@ async function run() {
         res.status(500).send({ message: "Server error" });
       }
     });
+
+    //Create booking and store data in DB
+    app.post("/api/bookings", async (req, res) => {
+      try {
+        const booking = req.body;
+
+        // basic validation
+        if (!booking?.vehicleId || !booking?.userEmail) {
+          return res
+            .status(400)
+            .send({ message: "vehicleId and userEmail required" });
+        }
+
+        booking.createdAt = new Date();
+
+        const result = await bookingsCollection.insertOne(booking);
+        res.send(result);
+      } catch (e) {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
+
+    // ----
 
     console.log("MongoDB connected & routes ready");
   } finally {
