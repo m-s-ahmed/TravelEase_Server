@@ -9,6 +9,12 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: ["http://localhost:5173"], // add Vercel URL add later
+    credentials: true,
+  }),
+);
 
 // MongoDB client
 const uri = process.env.MONGODB_URI;
@@ -21,6 +27,10 @@ async function run() {
     const db = client.db("travelEaseDB");
     const vehiclesCollection = db.collection("vehicles");
     const bookingsCollection = db.collection("bookings");
+
+    app.get("/health", (req, res) => {
+      res.status(200).json({ ok: true, message: "Travel Ease API is running" });
+    });
 
     app.get("/", (req, res) => {
       res.send("TravelEase Server is Running");
