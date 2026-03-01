@@ -37,7 +37,7 @@ async function run() {
       res.send(result);
     });
     //-------------
-     app.get("/api/vehicles/my", async (req, res) => {
+    app.get("/api/vehicles/my", async (req, res) => {
       try {
         const { userEmail } = req.query;
         if (!userEmail)
@@ -52,7 +52,7 @@ async function run() {
       } catch {
         res.status(500).send({ message: "Server error" });
       }
-    })
+    });
 
     //Get single vehicle by id
     app.get("/api/vehicles/:id", async (req, res) => {
@@ -64,7 +64,6 @@ async function run() {
     });
 
     //-----------------
-    
 
     // Get all vehicles with filter,sort
     app.get("/api/vehicles", async (req, res) => {
@@ -124,8 +123,21 @@ async function run() {
         res.status(500).send({ message: "Server error" });
       }
     });
-//---------------
-
+    //---------------
+    // GET my bookings
+    app.get("/api/bookings", async (req, res) => {
+      try {
+        const { userEmail } = req.query;
+        if (!userEmail) return res.send([]);
+        const result = await bookingsCollection
+          .find({ userEmail })
+          .sort({ createdAt: -1 })
+          .toArray();
+        res.send(result);
+      } catch {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
     // ----
 
     console.log("MongoDB connected & routes ready");
