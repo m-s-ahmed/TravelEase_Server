@@ -13,7 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://travel-ease-client-ten.vercel.app/",
+      "https://travel-ease-client-ten.vercel.app",
     ], // add Vercel URL add later
     credentials: true,
   }),
