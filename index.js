@@ -36,6 +36,23 @@ async function run() {
 
       res.send(result);
     });
+    //-------------
+     app.get("/api/vehicles/my", async (req, res) => {
+      try {
+        const { userEmail } = req.query;
+        if (!userEmail)
+          return res.status(400).send({ message: "userEmail required" });
+
+        const result = await vehiclesCollection
+          .find({ userEmail })
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.send(result);
+      } catch {
+        res.status(500).send({ message: "Server error" });
+      }
+    })
 
     //Get single vehicle by id
     app.get("/api/vehicles/:id", async (req, res) => {
@@ -45,6 +62,9 @@ async function run() {
       });
       res.send(result);
     });
+
+    //-----------------
+    
 
     // Get all vehicles with filter,sort
     app.get("/api/vehicles", async (req, res) => {
@@ -104,6 +124,7 @@ async function run() {
         res.status(500).send({ message: "Server error" });
       }
     });
+//---------------
 
     // ----
 
