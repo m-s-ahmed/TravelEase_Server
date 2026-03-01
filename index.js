@@ -102,8 +102,18 @@ async function run() {
     });
 
     //-------
+    // DELETE vehicle
+    app.delete("/api/vehicles/:id", async (req, res) => {
+      try {
+        const result = await vehiclesCollection.deleteOne({
+          _id: new ObjectId(req.params.id),
+        });
+        res.send(result);
+      } catch {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
 
-    
     // Get all vehicles with filter,sort
     app.get("/api/vehicles", async (req, res) => {
       try {
