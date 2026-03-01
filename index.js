@@ -64,7 +64,46 @@ async function run() {
     });
 
     //-----------------
+    // POST add vehicle
+    app.post("/api/vehicles", async (req, res) => {
+      try {
+        const vehicle = req.body;
+        if (!vehicle?.vehicleName || !vehicle?.userEmail) {
+          return res
+            .status(400)
+            .send({ message: "vehicleName & userEmail required" });
+        }
+        vehicle.createdAt = new Date();
+        vehicle.availability = vehicle.availability || "Available";
+        const result = await vehiclesCollection.insertOne(vehicle);
+        res.send(result);
+      } catch {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
 
+    // PATCH update vehicle
+    app.patch("/api/vehicles/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const update = req.body;
+
+        delete update._id;
+        delete update.createdAt; // prevent changing createdAt
+
+        const result = await vehiclesCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update },
+        );
+        res.send(result);
+      } catch {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
+
+    //-------
+
+    
     // Get all vehicles with filter,sort
     app.get("/api/vehicles", async (req, res) => {
       try {
